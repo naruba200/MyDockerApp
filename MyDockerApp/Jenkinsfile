@@ -4,9 +4,10 @@ pipeline {
     stages {
         stage('Clone') {
             steps {
-                git 'https://github.com/naruba200/MyDockerApp.git'
+                git branch: 'main', url: 'https://github.com/naruba200/MyDockerApp.git'
             }
         }
+
 
         stage('Restore & Build & Publish') {
             steps {
