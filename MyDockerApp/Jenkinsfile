@@ -37,14 +37,13 @@ pipeline {
             steps {
                 bat "dotnet restore"
                 bat "dotnet build --configuration Release"
-                // Giải quyết lỗi static assets bị trùng bằng flag /p:DisableBuildStaticWebAssets=true
                 bat "dotnet publish %PROJECT_PATH% -c Release -o %PUBLISH_DIR% /p:DisableBuildStaticWebAssets=true"
             }
         }
 
         stage('Docker Build') {
             steps {
-                bat "docker build -t %IMAGE_NAME% -f \"%WORKSPACE%\\Dockerfile\" ."
+                bat "docker build -t ${dockerImageName}:latest -f \"${WORKSPACE}\\MyDockerApp\\Dockerfile\" \"${WORKSPACE}\\MyDockerApp\""
             }
         }
 
