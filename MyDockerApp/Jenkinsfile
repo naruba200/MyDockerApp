@@ -1,6 +1,15 @@
 pipeline {
     agent any
 
+    environment {
+        PROJECT_PATH = 'MyDockerApp/MyDockerApp.csproj'
+        PUBLISH_DIR = 'publish'
+        IMAGE_NAME = 'p27625:latest'
+        CONTAINER_NAME = 'p27625run'
+        EXPOSE_PORT = '91'
+        INTERNAL_PORT = '3000'
+    }
+
     stages {
         stage('Clean Workspace') {
             steps {
@@ -14,40 +23,44 @@ pipeline {
             }
         }
 
+        stage('Clean bin/obj') {
+            steps {
+                bat '''
+                rmdir /s /q MyDockerApp\\bin
+                rmdir /s /q MyDockerApp\\obj
+                dotnet clean
+                '''
+            }
+        }
 
         stage('Restore & Build & Publish') {
             steps {
-                bat 'dotnet clean'
-                bat 'dotnet restore'
-                bat 'dotnet build --configuration Release'
-                bat 'dotnet publish MyDockerApp/MyDockerApp.csproj -c Release -o publish'
+                bat "dotnet restore"
+                bat "dotnet build --configuration Release"
+                // Giải quyết lỗi static assets bị trùng bằng flag /p:DisableBuildStaticWebAssets=true
+                bat "dotnet publish %PROJECT_PATH% -c Release -o %PUBLISH_DIR% /p:DisableBuildStaticWebAssets=true"
             }
         }
 
         stage('Docker Build') {
             steps {
-                bat 'docker build -t p27625:latest -f "%WORKSPACE%\\Dockerfile" .'
+                bat "docker build -t %IMAGE_NAME% -f \"%WORKSPACE%\\Dockerfile\" ."
             }
         }
 
         stage('Docker Stop & Remove (nếu có)') {
             steps {
-                bat '''
+                bat """
                 @echo off
-                for /f "delims=" %%i in ('docker ps -a --filter "name=p27625run" --format "{{.Names}}"') do (
-                    set container=%%i
-                )
-                if defined container (
-                    docker stop p27625run >nul 2>&1
-                    docker rm p27625run >nul 2>&1
-                )
-                '''
+                docker stop %CONTAINER_NAME% >nul 2>&1
+                docker rm %CONTAINER_NAME% >nul 2>&1
+                """
             }
         }
 
         stage('Docker Run') {
             steps {
-                bat 'docker run -d --name p27625run -p 91:3000 p27625:latest'
+                bat "docker run -d --name %CONTAINER_NAME% -p %EXPOSE_PORT%:%INTERNAL_PORT% %IMAGE_NAME%"
             }
         }
     }
