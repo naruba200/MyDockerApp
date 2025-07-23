@@ -2,6 +2,12 @@ pipeline {
     agent any
 
     stages {
+        stage('Clean Workspace') {
+            steps {
+                deleteDir()
+            }
+        }
+
         stage('Clone') {
             steps {
                 git branch: 'main', url: 'https://github.com/naruba200/MyDockerApp.git'
