@@ -1,0 +1,46 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Clone') {
+            steps {
+                git 'https://github.com/huudqtmu/projectnet.git'
+            }
+        }
+
+        stage('Restore & Build & Publish') {
+            steps {
+                bat 'dotnet restore'
+                bat 'dotnet build --configuration Release'
+                bat 'dotnet publish -c Release -o publish'
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                bat 'docker build -t p27625:latest -f "%WORKSPACE%\\Dockerfile" .'
+            }
+        }
+
+        stage('Docker Stop & Remove (nếu có)') {
+            steps {
+                bat '''
+                @echo off
+                for /f "delims=" %%i in ('docker ps -a --filter "name=p27625run" --format "{{.Names}}"') do (
+                    set container=%%i
+                )
+                if defined container (
+                    docker stop p27625run >nul 2>&1
+                    docker rm p27625run >nul 2>&1
+                )
+                '''
+            }
+        }
+
+        stage('Docker Run') {
+            steps {
+                bat 'docker run -d --name p27625run -p 91:3000 p27625:latest'
+            }
+        }
+    }
+}

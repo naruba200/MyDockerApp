@@ -1,0 +1,7 @@
+G:\Learning stuff\MyDockerApp\MyDockerApp\publish\MyDockerApp.exe
+G:\Learning stuff\MyDockerApp\MyDockerApp\publish\appsettings.Development.json
+G:\Learning stuff\MyDockerApp\MyDockerApp\publish\appsettings.json
+G:\Learning stuff\MyDockerApp\MyDockerApp\publish\MyDockerApp.dll
+G:\Learning stuff\MyDockerApp\MyDockerApp\publish\MyDockerApp.deps.json
+G:\Learning stuff\MyDockerApp\MyDockerApp\publish\MyDockerApp.runtimeconfig.json
+G:\Learning stuff\MyDockerApp\MyDockerApp\publish\MyDockerApp.pdb
